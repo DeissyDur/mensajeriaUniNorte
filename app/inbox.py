@@ -17,11 +17,14 @@ def getDB():
 @login_required
 def show():
     db = get_db()
+    userId= g.user['id']
     messages = db.execute(
-        QUERY
-    ).fetchall()
+        'SELECT u.username As username, m.subject AS subjet, m.body AS body from (select * from message where to_id= ?', (userId)
+        ).fetchall()
+        #ORDER BY created DESC # cambio 
+    
 
-    return render_template('inbox/show.html', messages=messages)
+    return render_template('inbox/show.html', messages=messages) # cambio
 
 
 @bp.route('/send', methods=('GET', 'POST'))
@@ -29,29 +32,29 @@ def show():
 def send():
     if request.method == 'POST':        
         from_id = g.user['id']
-        to_username = g.user['username']
-        subject = g.user['subject']
-        body = g.user['body']
+        to_username = request.form['to']
+        subject = request.form['subject']
+        body = request.form['body']
 
         db = get_db()
        
         if not to_username:
             flash('To field is required')
-            return render_template('inbox/send.html')
+            return render_template('inbox/send.html')  # cambio
         
-        if not subject:
+        if not subject:  # cambio
             flash('Subject field is required')
             return render_template('inbox/send.html')
         
-        if not body:
+        if not body:  # cambio
             flash('Body field is required')
-            return render_template('inbox/send.html')    
+            return render_template('inbox/send.html')    # cambio
         
         error = None    
         userto = None 
         
         userto = db.execute(
-            QUERY, (to_username,)
+            'SELECT * FROM user WHERE username = ?', (to_username,)  # cambio
         ).fetchone()
         
         if userto is None:
@@ -60,9 +63,10 @@ def send():
         if error is not None:
             flash(error)
         else:
-            db = get_db()
+            db = get_db() # cambio
             db.execute(
-                QUERY,
+                'INSERT INTO menssage (from_id, to, subject, body)'
+                ' VALUES (?, ?, ?, ?)',
                 (g.user['id'], userto['id'], subject, body)
             )
             db.commit()
