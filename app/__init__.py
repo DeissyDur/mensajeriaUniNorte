@@ -4,14 +4,15 @@ from app.db import get_db
 
 from flask import Flask
 
+
 def create_app(test_config=None):
     # Create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY = dbc.SEC,
-        DATABASE = os.path.join(app.instance_path, 'mensajeria.db'),
-        #DATABASE = os.path.join(app.instance_path, 'app.sqlite'), NOMBRE ORIGINAL
-    ) 
+        SECRET_KEY=dbc.SEC,
+        DATABASE=os.path.join(app.instance_path, '.\intance\mensajeria.db'),
+        # DATABASE = os.path.join(app.instance_path, 'app.sqlite'), NOMBRE ORIGINAL
+    )
 #    with app.app_context():
 #       get_db()
 
@@ -30,10 +31,10 @@ def create_app(test_config=None):
 
     from . import db
     db.init_app(app)
-    
+
     from . import auth
     app.register_blueprint(auth.bp)
-    
+
     from . import inbox
     app.register_blueprint(inbox.bp)
     app.add_url_rule('/index', endpoint='auth.register')
